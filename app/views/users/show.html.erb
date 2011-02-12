@@ -1,8 +1,8 @@
-
 <h3><%= @user.email %></h3>
-  <%= link_to_if(user_signed_in?, "Edit", edit_user_path(@user)) %> |
- <%= link_to_if(user_signed_in?, "Delete", user_path(@user), :confirm => "Are you sure?", :method => :delete) {} %>
-
+ 
+<%= link_to_if(can?(:update,@user), "Edit", edit_user_path(@user)) %> |
+<%= link_to_if(can?(:delete, @user), "Delete", user_path(@user), :confirm => "Are you sure?", :method => :delete) {} %>
+ 
 <table class="one-column-emphasis">
   <tbody>
     <tr>
@@ -11,18 +11,10 @@
     </tr>
     <tr>
       <td class="oce-first">Role:</td>
-      <td>
-<%
-=begin %>      	
-      	<%= @user.roles.map {|r| r.name}.join(", ")  if  @user.roles %>
-      	<ul class="no-pad no-bullets">
-	    <%= habtm_checkboxes(@user, :role_ids, @accessible_roles, :name,  :disabled => true)  if @user.roles %>
-	    </ul>
-<%
-=end %>
+      <td><%=  "#{@user.roles.collect{|r| r.name}}"  %>
       </td>
     </tr>
-  <% if user_signed_in? %>
+  <% if can?(:see_timestamps,User) %>
     <tr>
       <td class="oce-first">Created at:</td>
       <td><%= @user.created_at %></td>
@@ -38,6 +30,7 @@
   <% end %>
   </tbody>
 </table>
+
 
 <%= link_to 'Edit', edit_user_path(@user) %> |
 <%= link_to 'Back', users_path %>

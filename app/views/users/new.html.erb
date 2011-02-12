@@ -1,7 +1,6 @@
 <h2>Register User</h2>
  
 <%= form_for(@user) do |f| %>
-  <%-#= error_messages(@user,"Could not register user") -%>
  
   <%= render :partial => 'user_fields', :locals => { :f => f } %>
  
@@ -13,6 +12,5 @@
  
   <p><%= f.submit "Register" %></p>
 <% end %>
-
 
 <%= link_to 'Back', users_path %>

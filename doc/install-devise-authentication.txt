@@ -1,0 +1,51 @@
+
+1. Rails3 gem 설치:
+
+  $  gem install devise
+
+2. devise authentication 설치:
+
+  $ rails generate devise:install
+
+      create  config/initializers/devise.rb
+      create  config/locales/devise.en.yml
+
+===============================================================================
+
+Some setup you must do manually if you haven't yet:
+
+  1. Setup default url options for your specific environment. Here is an
+     example of development environment:
+
+       config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+
+     This is a required Rails configuration. In production it must be the
+     actual host of your application
+
+  2. Ensure you have defined root_url to *something* in your config/routes.rb.
+     For example:
+
+       root :to => "home#index"
+
+  3. Ensure you have flash messages in app/views/layouts/application.html.erb.
+     For example:
+
+       <p class="notice"><%= notice %></p>
+       <p class="alert"><%= alert %></p>
+
+===============================================================================
+
+3. add Devise to any of your models using the generator: 
+ # Replace MODEL by the class name you want to add devise, like User, Admin, etc
+ 
+ $ rails generate devise MODEL
+ 
+4. Devise will generate all of the views it is using and place them in an app/views/devise directory.
+ 
+  $ rails generate devise:views
+ 
+5. databse migration
+  
+  $ rake db:migrate
+  
+  

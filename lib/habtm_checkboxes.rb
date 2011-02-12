@@ -4,7 +4,7 @@ module HabtmCheckboxes
   # Generates a set of checkboxes for a HABTM assignment in a form.  Labels are properly assigned
   # to the checkboxes and markup is valid HTML.
   # 
-  #   habtm_checkboxes(@organizer, :event_ids, @events, :name)
+  #   habtm_checkboxes(@organizer, :event_ids, @events, :name,  checkbox_options={})
   #
   #   <%= hidden_field_tag "organizer[event_ids][]", "" %>
   #   <% @events.each do |event| -%>

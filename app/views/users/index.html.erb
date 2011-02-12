@@ -1,18 +1,17 @@
 <h1>Listing users</h1>
 
 <table>
+<% @users.each do |u| %>
   <tr>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @users.each do |user| %>
-  <tr>
-  	<td><%= user.email  %></td>
-    <td><%= link_to 'Show', user %></td>
-    <td><%= link_to 'Edit', edit_user_path(user) %></td>
-    <td><%= link_to 'Destroy', user, :confirm => 'Are you sure?', :method => :delete %></td>
+    <td><%= link_to_if(can?(:read, User), "#{u.email}", user_path(u.id)) {} -%></td>
+    <td><%= "#{u.email}" %></td>
+    <td><%= "#{u.roles.collect{|r| r.name}}" %></td>
+    <td><%= link_to_if(can?(:edit, User), image_tag("/images/edit_icon.gif"), edit_user_path(u.id)) {} %></td>
+    <td><%= link_to_if(can?(:delete, u), image_tag("/images/delete_icon.gif"), u, :confirm => "Are you sure?", :method => :delete) {} %></td>
+  	<td></td>
+    <td><%= link_to 'Show', u %></td>
+    <td><%= link_to 'Edit', edit_user_path(u) %></td>
+    <td><%= link_to 'Destroy', u, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
 </table>
@@ -20,3 +19,4 @@
 <br />
 
 <%= link_to 'New User', new_user_path %>
+

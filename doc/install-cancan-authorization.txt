@@ -1,0 +1,132 @@
+
+== Install CanCan Authorization
+ref. https://github.com/ryanb/cancan
+
+
+1. Rails3 Gemfile 에  authorization gem 추가
+
+ $ vi  Gemfile
+ 
+   gem 'cancan'
+   
+2.  bundle 명령실행
+  
+  $ bundle install
+  
+3.  Ability 정의: 
+   # User permissions are defined in an Ability class.
+   
+  $ rails g cancan:ability
+  
+       =>  create  app/models/ability.rb
+  
+ 4. Check Abilities & Authorization
+
+    # The current user’s permissions can then be checked using the can? and cannot? methods in the view and controller.
+    
+   <% if can? :update, @article %>
+    <%= link_to "Edit", edit_article_path(@article) %>
+  <% end %>
+   
+    See Checking Abilities for more information : https://github.com/ryanb/cancan/wiki/checking-abilities
+    
+    The "authorize!" method in the controller will raise an exception if the user is not able to perform the given action.
+
+  def show
+    @article = Article.find(params[:id])
+    authorize! :read, @article
+  end
+
+   the "load_and_authorize_resource"  method is provided to automatically authorize all actions in a RESTful style resource controller.
+    It will use a before filter to load the resource into an instance variable and authorize it for every action.
+
+  class ArticlesController < ApplicationController
+    load_and_authorize_resource
+
+    def show
+      # @article is already loaded and authorized
+    end
+  end
+
+See Authorizing Controller Actions for more information: https://github.com/ryanb/cancan/wiki/authorizing-controller-actions
+
+5. Handle Unauthorized Access
+
+If the user authorization fails, a CanCan::AccessDenied exception will be raised. 
+You can catch this and modify its behavior in the ApplicationController.
+
+  class ApplicationController < ActionController::Base
+    rescue_from CanCan::AccessDenied do |exception|
+      redirect_to root_url, :alert => exception.message
+    end
+    
+   private
+  #----------------------------------------------------------------------------
+  def respond_to_not_found(*types)
+    asset = self.controller_name.singularize
+    flick = case self.action_name
+      when "destroy" then "delete"
+      when "promote" then "convert"
+      else self.action_name
+    end
+    if self.action_name == "show"
+      flash[:warning] = t(:msg_asset_not_available, asset)
+    else
+      flash[:warning] = t(:msg_cant_do, :action => flick, :asset => asset)
+    end
+    respond_to do |format|
+      format.html { redirect_to(:action => :index) } if types.include?(:html)
+      format.js { render(:update) { |page| page.reload } } if types.include?(:js)
+      format.xml { render :text => flash[:warning], :status => :not_found } if types.include?(:xml)
+    end
+  end
+   
+  end
+
+See Exception Handling for more information. 
+
+6.  generate  scaffold Role 
+
+  $ rails  g scaffold  Role  name:string
+  
+  *_create_role.rb :
+  
+        create_table :roles do |t|
+      t.string :name
+
+      t.timestamps
+    end
+    add_index :roles, :name,                :unique => true
+
+7. generate model  RolesUsers
+
+   *_create_roles_users.rb :
+   
+    create_table :roles_users, :id => false  do |t|
+      t.references :role, :user
+    end
+
+8.  has_and_belongs_to_many  association
+
+	# User Model
+	class User < ActiveRecord::Base
+	  has_and_belongs_to_many :roles
+	....
+	# Role model
+	class Role < ActiveRecord::Base
+	  has_and_belongs_to_many :users
+	end
+	
+9.  habtm_checkboxes.rb  library 사용 :
+
+  views/users/edit.html.erb:
+    ...
+        <%= habtm_checkboxes(@user, :role_ids, @accessible_roles, :name, :disabled => false) -%>
+
+  
+Processing by UsersController#update as HTML
+ ...WARNING: Can't mass-assign protected attributes: role_ids
+ 
+  models/user.rb :
+     attr_accessible :role_ids
+     
