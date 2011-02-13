@@ -4,7 +4,8 @@ class RolesController < ApplicationController
   # GET /roles
   # GET /roles.xml
   def index
-    @roles = Role.all
+    #will_paginate simple search
+    @roles = Role.search(params[:q], params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

@@ -4,7 +4,11 @@ class UsersController < ApplicationController
   #before_filter :authenticate_user!
   before_filter :get_user, :only => [:index,:new,:edit]
   before_filter :accessible_roles, :only => [:new, :edit, :show, :update, :create]
-  load_and_authorize_resource :only => [:show,:new,:destroy,:edit,:update]
+  # CanCan provides a convenient load_and_authorize_resource method in the controller, but what exactly is this doing? 
+  	# It sets up a before filter for every action to handle the loading and authorization of the controller. 
+  	# Let's say we have a typical RESTful controller with that line at the top.
+  load_and_authorize_resource # :only => [:show,:new,:destroy,:edit,:update]
+	#skip_authorize_resource :only => :new
 
   private
 
@@ -26,8 +30,23 @@ class UsersController < ApplicationController
   # GET /users.xml
   # GET /users.json
   def index
-    @users = User.accessible_by(current_ability, :index).limit(20)
-    # @users = User.all
+    #@users = User.accessible_by(current_ability, :index).limit(20)
+  	# A collection of resources is automatically loaded in the index action using accessible_by
+  	 # @users automatically set to User.accessible_by(current_ability)
+    # @users = @users.paginate :page => params[:page],  :per_page => 2, :order => 'updated_at DESC'
+	page = params[:page] 
+  	q = params[:q]
+  	column = params[:column]
+#  	@users = @users.paginate :per_page =>2, :page => page,
+#            :conditions => ['email like ? or roles.find_by_name( ?) ', "%#{q}%", "#{q}"], :order => 'email'
+  if ! column.nil? and column.downcase == 'role'
+     	@users = @users.paginate  :per_page =>2, :page => page, :include => :roles,
+               :conditions => ['roles.name like ? ', "%#{q}%"], :order => 'email'
+  else
+  	  # search email column 
+     	@users = @users.paginate  :per_page =>2, :page => page, :include => :roles,
+               :conditions => ['email like ? ', "%#{q}%"], :order => 'email'
+   end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -40,7 +59,7 @@ class UsersController < ApplicationController
   # GET /users/1.xml
   # GET /users/1.json
   def show
-    @user = User.find(params[:id])
+    #@user = User.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -56,7 +75,7 @@ class UsersController < ApplicationController
   # GET /users/new.xml
   # GET /users/new.json
   def new
-    @user = User.new
+    #@user = User.new
 
     respond_to do |format|
       format.html # new.html.erb
@@ -69,7 +88,7 @@ class UsersController < ApplicationController
   # GET /users/1/edit.xml
   # GET /users/1/edit.json
   def edit
-    @user = User.find(params[:id])
+    #@user = User.find(params[:id])
 
     respond_to do |format|
       format.json { render :json => @user }
@@ -85,7 +104,7 @@ class UsersController < ApplicationController
   # POST /users.xml
   # POST /users.json
   def create
-    @user = User.new(params[:user])
+   # @user = User.new(params[:user])
 
     respond_to do |format|
       if @user.save
@@ -103,7 +122,7 @@ class UsersController < ApplicationController
   # PUT /users/1
   # PUT /users/1.xml
   def update
-    @user = User.find(params[:id])
+    #@user = User.find(params[:id])
     if params[:user][:password].blank?
       [:password, :password_confirmation, :current_password].collect { |p| params[:user].delete(p) }
     else
@@ -128,7 +147,7 @@ class UsersController < ApplicationController
   # DELETE /users/1.xml
   # DELETE /users/1.json
   def destroy
-    @user = User.find(params[:id])
+    #@user = User.find(params[:id])
     @user.destroy!
 
     respond_to do |format|

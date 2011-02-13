@@ -1,4 +1,15 @@
 <h1>Listing roles</h1>
+<div style="float:left;  padding:5px; background-color:#DEDFFE;border: 1px solid #DEDFDE;"> <%= page_entries_info @roles -%></div>
+<div style="float:right;">	
+	<%= form_tag request.path, :method => 'get' do %>
+	  <%= content_tag :label do %>
+	    Search term:
+	    <%= text_field_tag :q, params[:q] %>
+	  <% end %>
+	<% end %>
+</div>
+
+<br clear=left/>
 
 <table>
   <tr>
@@ -19,5 +30,6 @@
 </table>
 
 <br />
-
+  <div class='flickr_pagination'><%= will_paginate @roles %> </div>
+<br/>
 <%= link_to 'New Role', new_role_path %>

@@ -1,0 +1,8 @@
+==retaining  select_tag selected option 
+<%= select_tag :column, options_for_select(["email", "role"], params[:column]) %>
+
+  result>>
+<select name="column" id="column">
+<option selected="selected" value="email">email</option>
+<option value="role">role</option>
+</select>

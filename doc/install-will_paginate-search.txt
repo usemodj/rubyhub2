@@ -1,0 +1,48 @@
+
+== Will_Paginate simple search
+
+ref. https://github.com/mislav/will_paginate/wiki/Simple-search
+
+방법1)
+# models/role.rb:
+
+def self.search(q, page)
+  paginate :per_page => 5, :page => page,
+           :conditions => ['name like ?', "%#{q}%"], :order => 'name'
+end
+
+# roles_controller.rb:
+
+def index
+  @roles = Role.search(params[:q], params[:page])
+end
+------------------------
+방법2)
+
+class UsersController < ApplicationController
+  load_and_authorize_resource
+  
+  def index
+  	# A collection of resources is automatically loaded in the index action using accessible_by
+	@users = @users.paginate :per_page => 5, :page => page,
+            :conditions => ['email like ? ', "%#{q}%"], :order => 'email'
+    ...
+  end
+
+# views/roles/index.html.erb:
+
+When you create a search form, make sure its method is GET:
+
+<div style="float:left;  padding:5px; background-color:#DEDFFE;border: 1px solid #DEDFDE;"> 
+	<%= page_entries_info @roles -%></div>
+<div style="float:right;">	
+	<%= form_tag request.path, :method => 'get' do %>
+	  <%= content_tag :label do %>
+	    Search term:
+	    <%= text_field_tag :q, params[:q] %>
+	  <% end %>
+	<% end %>
+</div>
+
+
+  <div class='flickr_pagination'><%= will_paginate @roles %> </div>

@@ -1,11 +1,31 @@
 <h1>Listing users</h1>
+<div style="float:left;  padding:5px; background-color:#DEDFFE;border: 1px solid #DEDFDE;"> 
+	<%= page_entries_info @roles -%></div>
+<div style="float:right;">	
+	<%= form_tag request.path, :method => 'get' do %>
+	  <%= content_tag :label do %>
+	  	<%-#= select_tag :column, raw("<option value='email'>Email</option><option value='role'>Role</option>")-%>
+		<%= select_tag :column, options_for_select(["email", "role"], params[:column]) %>
 
+	    Search term:
+	    <%= text_field_tag :q, params[:q] %>
+	  <% end %>
+	<% end %>
+</div>
+
+<br clear="left"/>
 <table>
+	<thead>
+		<tr><td>Email</td><td>Roles</td><td>updated_at</td><td>created_at</td>
+			<td colspan=6></td></tr>
+	</thead>
 <% @users.each do |u| %>
   <tr>
-    <td><%= link_to_if(can?(:read, User), "#{u.email}", user_path(u.id)) {} -%></td>
-    <td><%= "#{u.email}" %></td>
+    <td><%= link_to( "#{u.email}", user_path(u.id))  -%></td>
+  
     <td><%= "#{u.roles.collect{|r| r.name}}" %></td>
+    <td><%= "#{u.updated_at}"%></td>
+    <td><%= "#{u.created_at}" %> </td>
     <td><%= link_to_if(can?(:edit, User), image_tag("/images/edit_icon.gif"), edit_user_path(u.id)) {} %></td>
     <td><%= link_to_if(can?(:delete, u), image_tag("/images/delete_icon.gif"), u, :confirm => "Are you sure?", :method => :delete) {} %></td>
   	<td></td>
@@ -15,6 +35,7 @@
   </tr>
 <% end %>
 </table>
+  <div class='flickr_pagination'><%= will_paginate @users %> </div>
 
 <br />
 
